@@ -1,6 +1,7 @@
 import PySimpleGUI as sg
 from PySimpleGUI.PySimpleGUI import InputText, Save, rgb, theme
 import pywhatkit as kit
+
 import sys, os, getpass, time
 
 class Handwriter:
@@ -23,18 +24,17 @@ class Handwriter:
         
     # Return desktop directory in portuguese and english language name on linux and windows systems
     def getDesktopDirCompatible(self):
-        desktop_path = None
-        if "linux" or "darwin" in sys.platform:
+        if "linux" in sys.platform:
             if os.path.isdir(f"/home/{getpass.getuser()}/Desktop/"):
-                desktop_path = f"/home/{getpass.getuser()}/Desktop/"
+                return f"/home/{getpass.getuser()}/Desktop/"
             elif os.path.isdir(f"/home/{getpass.getuser()}/Área de trabalho/"):
-                desktop_path = f"/home/{getpass.getuser()}/Área de trabalho/"
+                return f"/home/{getpass.getuser()}/Área de trabalho/"
         else:
             if os.path.isdir(f"C:\\Users\\{getpass.getuser()}\\Desktop\\"):
-                desktop_path = f"C:\\Users\\{getpass.getuser()}\\Desktop\\"
-            if os.path.isdir(f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"):
-                desktop_path = f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"
-        return desktop_path
+                return f"C:\\Users\\{getpass.getuser()}\\Desktop\\"
+            elif os.path.isdir(f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"):
+                return f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"
+        return None
 
     #Creation variable, all handwriter process
     def Start(self):
@@ -42,13 +42,14 @@ class Handwriter:
 
         #Convert text to image handwriter and save on desktop
         archive_path = self.getDesktopDirCompatible() if self.getDesktopDirCompatible() is not None else os.getcwd()
-        file_name = f"handwriter_{time.ctime().split(' ')[3]}.png"
+        file_name = f"handwriter_{time.ctime().split(' ')[3].replace(':','')}.png"
         
         kit.text_to_handwriting(
             text,
             os.path.join(archive_path, file_name),
             [0, 0, 0]
         )
+        print(f"Saved archive on {archive_path}")
 
 if __name__ == "__main__":
     screen = Handwriter()
