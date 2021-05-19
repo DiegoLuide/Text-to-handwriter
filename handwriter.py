@@ -19,32 +19,36 @@ class Handwriter:
         #Capture variables of window
         self.event, self.values = window.Read()
 
-        sg.popup('The archive has been saved in desktop.')
+        sg.popup('The archive has been saved in desktop or program directory. Please wait the main window of program close automatically.')
+        
+    # Return desktop directory in portuguese and english language name on linux and windows systems
+    def getDesktopDirCompatible(self):
+        desktop_path = None
+        if "linux" or "darwin" in sys.platform:
+            if os.path.isdir(f"/home/{getpass.getuser()}/Desktop/"):
+                desktop_path = f"/home/{getpass.getuser()}/Desktop/"
+            elif os.path.isdir(f"/home/{getpass.getuser()}/Área de trabalho/"):
+                desktop_path = f"/home/{getpass.getuser()}/Área de trabalho/"
+        else:
+            if os.path.isdir(f"C:\\Users\\{getpass.getuser()}\\Desktop\\"):
+                desktop_path = f"C:\\Users\\{getpass.getuser()}\\Desktop\\"
+            if os.path.isdir(f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"):
+                desktop_path = f"C:\\Users\\{getpass.getuser()}\\Área de trabalho\\"
+        return desktop_path
 
     #Creation variable, all handwriter process
     def Start(self):
         text = self.values['textinput']    
 
         #Convert text to image handwriter and save on desktop
-        if "linux" or "darwin" in sys.platform:
-            desktop_path = f"/home/{getpass.getuser()}/Desktop/"
-        else:
-            desktop_path = f"C:\\Users\\{getpass.getuser()}\\Desktop\\"
-            
-        file_name = f"handwriter_{time.ctime().split(' ')[3].replace}.png"
+        archive_path = self.getDesktopDirCompatible() if self.getDesktopDirCompatible() is not None else os.getcwd()
+        file_name = f"handwriter_{time.ctime().split(' ')[3]}.png"
         
-        if os.path.isdir(desktop_path):
-            kit.text_to_handwriting(
-                text,
-                os.path.join(desktop_path, file_name),
-                [0, 0, 0]
-            )
-        else:
-            kit.text_to_handwriting(
-                text,
-                os.path.join(os.getcwd(), file_name),
-                [0, 0, 0]
-            )
+        kit.text_to_handwriting(
+            text,
+            os.path.join(archive_path, file_name),
+            [0, 0, 0]
+        )
 
 if __name__ == "__main__":
     screen = Handwriter()
